@@ -97,19 +97,8 @@ namespace ZombiePong
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
-
-            paddle2.Location = new Vector2(paddle2.Location.X, ball.Center.Y);
-
-            if (paddle2.IsBoxColliding(ball.BoundingBoxRect))
-                ball.Velocity *= new Vector2(100, 250);
-
-
-
-            MouseState ms = Mouse.GetState();
-            paddle1.Location = new Vector2(paddle1.Location.X, ms.Y);
 
             // TODO: Add your update logic here
             ball.Update(gameTime);
@@ -117,13 +106,66 @@ namespace ZombiePong
             for (int i = 0; i < zombies.Count; i++)
             {
                 zombies[i].Update(gameTime);
+                // Zombie logic goes here..
 
-                // Zombie logic goes here.. 
-                if (zombies[i].Velocity.X < 80)
+                if (zombies[i].Location.X >= 1200)
+                {
                     zombies[i].FlipHorizontal = false;
+                    zombies[i].Velocity *= new Vector2(-1, 1);
+                }
+
+                if (zombies[i].Location.X <= 0)
+                {
+                    zombies[i].FlipHorizontal = true;
+                    zombies[i].Velocity *= new Vector2(-1, 1);
+                }
+
+                if (zombies[i].Velocity.X > 0)
+                {
+                    zombies[i].FlipHorizontal = true;
+                }
+
+                else
+                    zombies[i].FlipHorizontal = false;
+
+                if (ball.IsBoxColliding(zombies[i].BoundingBoxRect))
+                {
+                    ball.Velocity *= new Vector2(-1, 1);
+                    ball.FlipHorizontal = true;
+                }
             }
 
+            paddle2.Location = new Vector2(paddle2.Location.X, ball.Center.Y - 75);
+
+            if (paddle2.IsBoxColliding(ball.BoundingBoxRect))
+            {
+                ball.Velocity *= new Vector2(-1, 1);
+                ball.FlipHorizontal = true;
+            }
+
+            else if (paddle1.IsBoxColliding(ball.BoundingBoxRect))
+            {
+                ball.Velocity *= new Vector2(-1, 1);
+                ball.FlipHorizontal = false;
+            }
+
+            else if (ball.Location.Y < 0)
+            {
+                ball.Velocity *= new Vector2(1, -1);
+            }
+
+            else if (ball.Location.Y > 1800)
+            {
+                ball.Velocity *= new Vector2(1, -1);
+            }
+            MouseState ms = Mouse.GetState();
+            paddle1.Location = new Vector2(paddle1.Location.X, (float)ms.Y - 75);
             base.Update(gameTime);
+
+            if (ball.Location.X <= 0)
+            {
+                ball = new Sprite(new Vector2(500, 350), spritesheet, new Rectangle(76, 510, 40, 40), new Vector2(250, -100));
+            }
         }
 
         /// <summary>
